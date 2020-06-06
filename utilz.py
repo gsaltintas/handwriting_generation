@@ -28,7 +28,17 @@ def save_checkpoint(epoch, model, validation_loss, optimizer, directory, \
         torch.save(checkpoint, os.path.join(directory, filename))
 
 
-def plot_stroke(stroke, save_name=None):
+def plot_stroke(stroke, save_name=None, scale=3, line_width=3):
+    """
+    saves the stroke as an image
+    :type save_name: str
+    :type scale: float
+    :type line_width: int
+    :param stroke:
+    :param save_name: specify the PATH/NAME to save the file
+    :param scale: larger the scale, larger the image
+    :param line_width: specify the intensity of the line
+    """
     # Plot a single example.
     f, ax = pyplot.subplots()
 
@@ -38,27 +48,30 @@ def plot_stroke(stroke, save_name=None):
     size_x = x.max() - x.min() + 1.
     size_y = y.max() - y.min() + 1.
 
-    f.set_size_inches(5. * size_x / size_y, 5.)
+    f.set_size_inches(scale. * size_x / size_y, scale.)
 
     cuts = numpy.where(stroke[:, 0] == 1)[0]
     start = 0
 
     for cut_value in cuts:
         ax.plot(x[start:cut_value], y[start:cut_value],
-                'k-', linewidth=3)
+                'k-', linewidth=line_width)
         start = cut_value + 1
     ax.axis('equal')
     ax.axes.get_xaxis().set_visible(False)
     ax.axes.get_yaxis().set_visible(False)
-
+    
     if save_name is None:
         pyplot.show()
     else:
         try:
             pyplot.savefig(
                 save_name,
+                format='svg', # more suitable for scalability
+                transparent=True,
                 bbox_inches='tight',
-                pad_inches=0.5)
+                pad_inches=0
+                )
         except Exception:
             print ("Error building image!: " + save_name)
 
