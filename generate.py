@@ -3,7 +3,7 @@
 import numpy as np
 import torch
 from torch.autograd import Variable
-# from utilz import plot_stroke
+from utilz import plot_stroke
 from model import LSTMRandWriter, LSTMSynthesis
 import matplotlib.pyplot as plt 
 
