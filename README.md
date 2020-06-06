@@ -6,7 +6,7 @@ Original scripts were updated to allow compatibility with pytorch 1.4.0.
 It can be run in a local machine but the model requires gpu power and the training takes a lot of time. This implementation uses wezteoh's already set weights in a modified implementation of Alex Graves' paper: [Generating Sequences With Recurrent Neural Networks](https://arxiv.org/abs/1308.0850) using pytorch.
 
 ### Running on Google Colab
-Run the notebook *Handwriting Generator for colab.ipynb* either on Colab or local machine. The results can be saved into Drive as well -to do so mount drive with the instructions in the notebook.
+Run the notebook [*Handwriting Generator for colab.ipynb*](Handwriting_Generator_for_colab.ipynb) either on Colab or local machine. The results can be saved into Drive as well -to do so mount drive with the instructions in the notebook.
 #### Notes:
 - This notebook requires Python2.7.
 - The optimum length of text fed into conditional handwriting generator is ~50-65.
