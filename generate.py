@@ -1,7 +1,9 @@
+# from generate import generate_unconditionally, generate_conditionally
+
 import numpy as np
 import torch
 from torch.autograd import Variable
-from utilz import plot_stroke
+# from utilz import plot_stroke
 from model import LSTMRandWriter, LSTMSynthesis
 import matplotlib.pyplot as plt 
 
@@ -9,7 +11,7 @@ import matplotlib.pyplot as plt
 cuda = torch.cuda.is_available()
 
 def generate_unconditionally(cell_size=400, num_clusters=20, steps=800, random_state=700, \
-                                state_dict_file='trained_models/unconditional_epoch_50.pt'):
+                                state_dict_file='trained_models/unconditional_epoch_50.pt', save_name=None):
     
     model = LSTMRandWriter(cell_size, num_clusters)
     # load trained model weights
@@ -35,16 +37,16 @@ def generate_unconditionally(cell_size=400, num_clusters=20, steps=800, random_s
         end, weights, mu_1, mu_2, log_sigma_1, log_sigma_2, p, prev, prev2 = model(x, prev, prev2)
         
         # sample end stroke indicator
-        prob_end = end.data[0][0][0]        
+        prob_end = end.data[0][0][0].cpu()        
         sample_end = np.random.binomial(1,prob_end)
         sample_index = np.random.choice(range(20),p = weights.data[0][0].cpu().numpy())
         
         # sample new stroke point
-        mu = np.array([mu_1.data[0][0][sample_index], mu_2.data[0][0][sample_index]])
-        v1 = log_sigma_1.exp().data[0][0][sample_index]**2
-        v2 = log_sigma_2.exp().data[0][0][sample_index]**2
-        c = p.data[0][0][sample_index]*log_sigma_1.exp().data[0][0][sample_index]\
-            *log_sigma_2.exp().data[0][0][sample_index]
+        mu = np.array([mu_1.data[0][0][sample_index].cpu(), mu_2.data[0][0][sample_index].cpu()])
+        v1 = log_sigma_1.exp().data[0][0][sample_index].cpu()**2
+        v2 = log_sigma_2.exp().data[0][0][sample_index].cpu()**2
+        c = p.data[0][0][sample_index].cpu()*log_sigma_1.exp().data[0][0][sample_index].cpu()\
+            *log_sigma_2.exp().data[0][0][sample_index].cpu()
         cov = np.array([[v1,c],[c,v2]])
         sample_point = np.random.multivariate_normal(mu, cov)
         
@@ -56,12 +58,12 @@ def generate_unconditionally(cell_size=400, num_clusters=20, steps=800, random_s
         x = Variable(x, requires_grad=False)
         x = x.view((1,1,3))
         
-    plot_stroke(np.array(record))
+    plot_stroke(np.array(record), save_name)
     
     
 
 def generate_conditionally(text, cell_size=400, num_clusters=20, K=10, random_state=700, \
-                            bias=1., bias2=1., state_dict_file='trained_models/conditional_epoch_60.pt'):
+                            bias=1., bias2=1., state_dict_file='trained_models/conditional_epoch_60.pt', save_name=None):
     
     char_to_code = torch.load('char_to_code.pt')
     np.random.seed(random_state)
@@ -112,18 +114,18 @@ def generate_conditionally(text, cell_size=400, num_clusters=20, K=10, random_st
         end, weights, mu_1, mu_2, log_sigma_1, log_sigma_2, rho, w_old, kappa_old, prev, prev2, old_phi = outputs
         
         #bernoulli sample
-        prob_end = end.data[0][0][0]
+        prob_end = end.data[0][0][0].cpu()
         sample_end = np.random.binomial(1,prob_end)
 
         #mog sample
         sample_index = np.random.choice(range(20),p = weights.data[0][0].cpu().numpy())
-        mu = np.array([mu_1.data[0][0][sample_index], mu_2.data[0][0][sample_index]])
+        mu = np.array([mu_1.data[0][0][sample_index].cpu(), mu_2.data[0][0][sample_index].cpu()])
         log_sigma_1 = log_sigma_1 - bias2
         log_sigma_2 = log_sigma_2 - bias2
-        v1 = (log_sigma_1).exp().data[0][0][sample_index]**2
-        v2 = (log_sigma_2).exp().data[0][0][sample_index]**2
-        c = rho.data[0][0][sample_index]*log_sigma_1.exp().data[0][0][sample_index]\
-            *log_sigma_2.exp().data[0][0][sample_index]
+        v1 = (log_sigma_1).exp().data[0][0][sample_index].cpu()**2
+        v2 = (log_sigma_2).exp().data[0][0][sample_index].cpu()**2
+        c = rho.data[0][0][sample_index].cpu()*log_sigma_1.exp().data[0][0][sample_index].cpu()\
+            *log_sigma_2.exp().data[0][0][sample_index].cpu()
         cov = np.array([[v1,c],[c,v2]])
         sample_point = np.random.multivariate_normal(mu, cov)
         
@@ -147,7 +149,7 @@ def generate_conditionally(text, cell_size=400, num_clusters=20, K=10, random_st
         
     phis = torch.stack(phis).data.cpu().numpy().T
          
-    plot_stroke(np.array(record))
+    plot_stroke(np.array(record), save_name)
     attention_plot(phis)
 
 
