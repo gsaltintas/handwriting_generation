@@ -6,9 +6,31 @@ from torch.autograd import Variable
 from utilz import plot_stroke
 from model import LSTMRandWriter, LSTMSynthesis
 import matplotlib.pyplot as plt 
+import argparse
+import random
+import os
 
 # find gpu 
 cuda = torch.cuda.is_available()
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--text', type=str, default='', help='text to turn into handwriting, leave empty for unconditional' )
+    parser.add_argument('--save_name', type=str, default='hand_writing', help='file name')
+    parser.add_argument('--save_path', type=str, default='results', help='specify the folder to put results')
+    args = parser.parse_args()
+
+    text = args.text
+    path = os.path.abspath(os.path.join(args.save_path, args.save_name))
+    random_sate = random.randint(1, 1000)
+    if text == '':
+        generate_unconditionally(random_state=random_state, save_name=path)
+    else:
+        bias = random.randint(1, 10)
+        bias2 = random.randint(1, 10)
+        generate_conditionally(text, random_state=random_sate ,bias=bias, bias2=bias2, save_name=path)
+
 
 def generate_unconditionally(cell_size=400, num_clusters=20, steps=800, random_state=700, \
                                 state_dict_file='trained_models/unconditional_epoch_50.pt', save_name=None):
@@ -120,7 +142,7 @@ def generate_conditionally(text, cell_size=400, num_clusters=20, K=10, random_st
         #mog sample
         sample_index = np.random.choice(range(20),p = weights.data[0][0].cpu().numpy())
         mu = np.array([mu_1.data[0][0][sample_index].cpu(), mu_2.data[0][0][sample_index].cpu()])
-        log_sigma_1 = log_sigma_1 - bias2
+        log_sigma_1 = log_sigma_1 - bias
         log_sigma_2 = log_sigma_2 - bias2
         v1 = (log_sigma_1).exp().data[0][0][sample_index].cpu()**2
         v2 = (log_sigma_2).exp().data[0][0][sample_index].cpu()**2
@@ -160,3 +182,7 @@ def attention_plot(phis):
     plt.ylabel('text scanning')
     plt.imshow(phis, cmap='hot', interpolation='nearest', aspect='auto')
     plt.show()
+
+
+if __name__ == "__main__":
+    main()
