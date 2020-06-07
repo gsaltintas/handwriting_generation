@@ -1,5 +1,5 @@
 # Handwriting Generation
-Forked from [wezteoh's implementation of handwriting generation] (https://github.com/wezteoh/handwriting_generation) to allow running on [Google Colab](https://colab.research.google.com/).
+Forked from [wezteoh's implementation of handwriting generation](https://github.com/wezteoh/handwriting_generation) to allow running on [Google Colab](https://colab.research.google.com/).
 
 Original scripts were updated to allow compatibility with pytorch 1.4.0.
 
@@ -13,6 +13,6 @@ Run the notebook [*Handwriting Generator for colab.ipynb*](Handwriting_Generator
 - To obtain different kinds of handwritings change `random_state`, `bias`, and `bias2` parameters in generate functions.
 
 ### Original Implementation
-For original implementation, please see [here] (https://github.com/wezteoh/handwriting_generation).
+For original implementation, please see [here](https://github.com/wezteoh/handwriting_generation).
 
 
